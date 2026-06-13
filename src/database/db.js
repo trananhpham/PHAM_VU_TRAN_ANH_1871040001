@@ -88,7 +88,7 @@ function seedData() {
   ];
 
   const readers = [
-    ['Nguyễn Minh Tuấn', 'tuan@email.com', '0901234567', 'Hà Nội', 'MEM001'],
+    ['Phạm Vũ Trần Anh', 'trananh@email.com', '0901234567', 'Hà Nội', 'MEM001'],
     ['Trần Thị Lan', 'lan@email.com', '0912345678', 'TP.HCM', 'MEM002'],
     ['Lê Văn Hùng', 'hung@email.com', '0923456789', 'Đà Nẵng', 'MEM003'],
   ];
