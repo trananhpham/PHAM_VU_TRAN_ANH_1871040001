@@ -106,4 +106,4 @@ Mở trình duyệt web và truy cập: **[http://localhost:3000](http://localho
 ---
 
 ## 👩‍💻 Tác giả / Sinh viên thực hiện
-**Phạm Vũ Tuấn Anh** - MSSV: 1871040001
+**Phạm Vũ Trần Anh** - MSSV: 1871040001
