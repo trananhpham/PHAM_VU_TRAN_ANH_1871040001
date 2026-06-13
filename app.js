@@ -9,10 +9,6 @@ require('./src/database/db').getDb();
 
 const HomeController = require('./src/controllers/homeController');
 const adminRoutes = require('./src/routes/adminRoutes');
-// Legacy routes (kept for backward compat)
-const bookRoutes = require('./src/routes/bookRoutes');
-const readerRoutes = require('./src/routes/readerRoutes');
-const borrowRoutes = require('./src/routes/borrowRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -58,11 +54,6 @@ app.get('/', HomeController.index);
 
 // Admin Panel
 app.use('/admin', adminRoutes);
-
-// Legacy routes (giữ lại để tương thích)
-app.use('/books', bookRoutes);
-app.use('/readers', readerRoutes);
-app.use('/borrows', borrowRoutes);
 
 // ===== 404 =====
 app.use((req, res) => {
