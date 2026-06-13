@@ -76,6 +76,11 @@ function seedData() {
     VALUES (?, ?, ?, ?, ?)
   `);
 
+  const insertBorrow = db.prepare(`
+    INSERT INTO borrows (reader_id, book_id, borrow_date, due_date, status, return_date, fine_amount, note)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
   const books = [
     ['Lập trình Node.js nâng cao', 'Nguyễn Văn An', 'Công nghệ', 'ISBN001', 5, 5, 2022, 'Sách hướng dẫn Node.js từ cơ bản đến nâng cao'],
     ['Cấu trúc dữ liệu và giải thuật', 'Trần Thị Bình', 'Khoa học máy tính', 'ISBN002', 3, 3, 2021, 'Giáo trình CTDL và thuật toán'],
@@ -91,6 +96,26 @@ function seedData() {
     ['Phạm Vũ Trần Anh', 'trananh@email.com', '0901234567', 'Hà Nội', 'MEM001'],
     ['Trần Thị Lan', 'lan@email.com', '0912345678', 'TP.HCM', 'MEM002'],
     ['Lê Văn Hùng', 'hung@email.com', '0923456789', 'Đà Nẵng', 'MEM003'],
+    ['Nguyễn Văn An', 'nva@email.com', '0988111222', 'Hải Phòng', 'MEM004'],
+    ['Hoàng Thị Bích', 'htb@email.com', '0977222333', 'Nha Trang', 'MEM005'],
+    ['Vũ Đức Cường', 'vdc@email.com', '0966333444', 'Cần Thơ', 'MEM006'],
+    ['Đỗ Mai Dung', 'dmd@email.com', '0955444555', 'Huế', 'MEM007'],
+  ];
+
+  const dateStr = (daysOffset) => {
+    const d = new Date();
+    d.setDate(d.getDate() + daysOffset);
+    return d.toISOString().split('T')[0];
+  };
+
+  const borrows = [
+    // reader_id, book_id, borrow_date, due_date, status, return_date, fine_amount, note
+    [2, 1, dateStr(-20), dateStr(-6), 'borrowing', null, 0, 'Quá hạn 6 ngày'],
+    [3, 2, dateStr(-30), dateStr(-16), 'borrowing', null, 0, 'Quá hạn 16 ngày'],
+    [1, 3, dateStr(-10), dateStr(4), 'returned', dateStr(0), 0, 'Đã trả đúng hạn'],
+    [4, 4, dateStr(-2), dateStr(12), 'borrowing', null, 0, 'Mới mượn'],
+    [1, 5, dateStr(-1), dateStr(13), 'borrowing', null, 0, 'Đang mượn'],
+    [5, 6, dateStr(-25), dateStr(-11), 'returned', dateStr(-5), 12000, 'Trả trễ 6 ngày (bị phạt 12.000)'],
   ];
 
   const insertBooksMany = db.transaction(() => {
@@ -99,9 +124,16 @@ function seedData() {
   const insertReadersMany = db.transaction(() => {
     for (const reader of readers) insertReader.run(...reader);
   });
+  const insertBorrowsMany = db.transaction(() => {
+    for (const b of borrows) insertBorrow.run(...b);
+  });
 
   insertBooksMany();
   insertReadersMany();
+  insertBorrowsMany();
+
+  // Cập nhật lại số lượng available cho những sách đang mượn
+  db.exec("UPDATE books SET available = available - 1 WHERE id IN (1, 2, 4, 5)");
 }
 
 module.exports = { getDb };
