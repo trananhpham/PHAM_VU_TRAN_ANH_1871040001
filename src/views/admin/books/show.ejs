@@ -1,0 +1,48 @@
+<% layout('layout/admin') %>
+
+<div class="admin-page-header">
+  <div>
+    <h1>📖 <%= book.title %></h1>
+    <p>Chi tiết sách</p>
+  </div>
+  <div style="display:flex; gap:8px">
+    <a href="/admin/books/<%= book.id %>/edit" class="btn btn-primary">✏️ Sửa</a>
+    <a href="/admin/books" class="btn btn-ghost">← Danh sách</a>
+  </div>
+</div>
+
+<div class="admin-grid-auto">
+  <div class="admin-card">
+    <div class="admin-card-header"><span class="admin-card-title">📚 Thông tin chi tiết</span><span class="badge badge-info"><%= book.category %></span></div>
+    <div class="admin-card-body">
+      <div class="admin-detail-grid">
+        <div class="admin-detail-item"><div class="label">Tác giả</div><div class="value"><%= book.author %></div></div>
+        <div class="admin-detail-item"><div class="label">ISBN</div><div class="value"><%= book.isbn || '—' %></div></div>
+        <div class="admin-detail-item"><div class="label">Năm XB</div><div class="value"><%= book.published_year || '—' %></div></div>
+        <div class="admin-detail-item"><div class="label">Tổng số lượng</div><div class="value" style="font-size:1.2rem; font-weight:800"><%= book.quantity %></div></div>
+        <div class="admin-detail-item">
+          <div class="label">Có thể mượn</div>
+          <div class="value">
+            <span class="<%= book.available===0?'avail-zero':book.available<=2?'avail-low':'avail-ok' %>" style="font-size:1.2rem">
+              <%= book.available===0?'🔴':book.available<=2?'🟡':'🟢' %> <%= book.available %>
+            </span>
+          </div>
+        </div>
+        <div class="admin-detail-item"><div class="label">Ngày thêm</div><div class="value" style="font-size:0.8rem"><%= book.created_at.split(' ')[0] %></div></div>
+        <% if (book.description) { %>
+          <div class="admin-detail-item" style="grid-column:1/-1">
+            <div class="label">Mô tả</div>
+            <div class="value" style="color:var(--a-muted); line-height:1.6; font-size:0.82rem"><%= book.description %></div>
+          </div>
+        <% } %>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:20px; padding-top:16px; border-top:1px solid var(--a-border)">
+        <a href="/admin/borrows/new?book_id=<%= book.id %>" class="btn btn-success">📝 Tạo phiếu mượn</a>
+        <form action="/admin/books/<%= book.id %>?_method=DELETE" method="POST" style="display:inline">
+          <input type="hidden" name="_method" value="DELETE">
+          <button type="submit" class="btn btn-danger" data-confirm="Xóa sách '<%= book.title %>'?">🗑️ Xóa sách</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

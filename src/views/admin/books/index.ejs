@@ -1,0 +1,101 @@
+<% layout('layout/admin') %>
+
+<div class="admin-page-header">
+  <div>
+    <h1>📚 Quản lý Sách</h1>
+    <p>Tổng cộng <strong><%= total %></strong> đầu sách trong hệ thống</p>
+  </div>
+  <a href="/admin/books/new" class="btn btn-primary">➕ Thêm sách mới</a>
+</div>
+
+<!-- Search -->
+<div class="admin-card mb-4" style="margin-bottom:16px">
+  <div class="admin-card-body">
+    <form action="/admin/books" method="GET">
+      <div class="admin-search">
+        <div class="admin-search-wrap">
+          <span class="admin-search-icon">🔍</span>
+          <input type="text" name="search" value="<%= search %>" placeholder="Tìm tên sách, tác giả, ISBN..." class="admin-form-control">
+        </div>
+        <select name="category" class="admin-form-control" id="category-filter" style="max-width:180px">
+          <option value="">-- Tất cả --</option>
+          <% categories.forEach(cat => { %>
+            <option value="<%= cat %>" <%= category === cat ? 'selected' : '' %>><%= cat %></option>
+          <% }) %>
+        </select>
+        <button type="submit" class="btn btn-primary">Tìm</button>
+        <% if (search || category) { %>
+          <a href="/admin/books" class="btn btn-ghost">✕ Xóa</a>
+        <% } %>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="admin-card">
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th><th>Tên sách</th><th>Tác giả</th><th>Thể loại</th><th>ISBN</th>
+          <th style="text-align:center">Tổng SL</th><th style="text-align:center">Còn lại</th>
+          <th style="text-align:center">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (books.length === 0) { %>
+          <tr><td colspan="8">
+            <div class="admin-empty">
+              <div class="icon">📭</div>
+              <h3>Không tìm thấy sách</h3>
+              <p><% if (search||category) { %>Thử từ khóa khác<% } else { %>Hãy thêm sách đầu tiên<% } %></p>
+              <a href="/admin/books/new" class="btn btn-primary">➕ Thêm sách</a>
+            </div>
+          </td></tr>
+        <% } else { %>
+          <% books.forEach(book => { %>
+            <tr>
+              <td style="color:var(--a-faint); font-size:0.72rem">#<%= book.id %></td>
+              <td>
+                <a href="/admin/books/<%= book.id %>" style="font-weight:600; color:var(--a-text)"><%= book.title %></a>
+                <% if (book.published_year) { %>
+                  <div style="font-size:0.68rem; color:var(--a-faint)"><%= book.published_year %></div>
+                <% } %>
+              </td>
+              <td style="color:var(--a-muted)"><%= book.author %></td>
+              <td><span class="badge badge-info"><%= book.category %></span></td>
+              <td style="font-size:0.72rem; color:var(--a-faint)"><%= book.isbn || '—' %></td>
+              <td style="text-align:center; font-weight:700"><%= book.quantity %></td>
+              <td style="text-align:center">
+                <span class="<%= book.available === 0 ? 'avail-zero' : book.available <= 2 ? 'avail-low' : 'avail-ok' %>">
+                  <%= book.available === 0 ? '🔴' : book.available <= 2 ? '🟡' : '🟢' %> <%= book.available %>
+                </span>
+              </td>
+              <td>
+                <div style="display:flex; gap:4px; justify-content:center">
+                  <a href="/admin/books/<%= book.id %>" class="btn btn-ghost btn-sm btn-icon" title="Xem">👁️</a>
+                  <a href="/admin/books/<%= book.id %>/edit" class="btn btn-ghost btn-sm btn-icon" title="Sửa">✏️</a>
+                  <form action="/admin/books/<%= book.id %>?_method=DELETE" method="POST" style="display:inline">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-danger btn-sm btn-icon" title="Xóa"
+                      data-confirm="Xóa sách '<%= book.title %>'?">🗑️</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+  <% if (totalPages > 1) { %>
+    <div class="admin-pagination">
+      <a href="/admin/books?search=<%= search %>&category=<%= category %>&page=<%= Math.max(1,page-1) %>" class="admin-page-btn <%= page<=1?'disabled':'' %>">‹</a>
+      <% for(let i=1;i<=totalPages;i++) { %>
+        <a href="/admin/books?search=<%= search %>&category=<%= category %>&page=<%= i %>" class="admin-page-btn <%= i===page?'active':'' %>"><%= i %></a>
+      <% } %>
+      <a href="/admin/books?search=<%= search %>&category=<%= category %>&page=<%= Math.min(totalPages,page+1) %>" class="admin-page-btn <%= page>=totalPages?'disabled':'' %>">›</a>
+    </div>
+  <% } %>
+</div>

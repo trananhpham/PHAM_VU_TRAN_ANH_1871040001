@@ -1,0 +1,64 @@
+<% layout('layout/admin') %>
+
+<div class="admin-page-header">
+  <div><h1>👥 Quản lý Độc giả</h1><p>Tổng cộng <strong><%= total %></strong> độc giả đăng ký</p></div>
+  <a href="/admin/readers/new" class="btn btn-primary">👤 Đăng ký Độc giả</a>
+</div>
+
+<div class="admin-card" style="margin-bottom:16px">
+  <div class="admin-card-body">
+    <form action="/admin/readers" method="GET">
+      <div class="admin-search">
+        <div class="admin-search-wrap">
+          <span class="admin-search-icon">🔍</span>
+          <input type="text" name="search" value="<%= search %>" placeholder="Tìm tên, email, mã TV, SĐT..." class="admin-form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">Tìm</button>
+        <% if (search) { %><a href="/admin/readers" class="btn btn-ghost">✕ Xóa</a><% } %>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="admin-card">
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>Mã TV</th><th>Họ tên</th><th>Email</th><th>SĐT</th><th>Địa chỉ</th><th>Ngày ĐK</th><th style="text-align:center">Thao tác</th></tr></thead>
+      <tbody>
+        <% if (readers.length === 0) { %>
+          <tr><td colspan="7"><div class="admin-empty"><div class="icon">👤</div><h3>Không tìm thấy độc giả</h3><a href="/admin/readers/new" class="btn btn-primary">👤 Đăng ký ngay</a></div></td></tr>
+        <% } else { %>
+          <% readers.forEach(r => { %>
+            <tr>
+              <td><span class="badge badge-primary"><%= r.member_id %></span></td>
+              <td><a href="/admin/readers/<%= r.id %>" style="font-weight:600; color:var(--a-text)"><%= r.name %></a></td>
+              <td style="color:var(--a-muted); font-size:0.78rem"><%= r.email %></td>
+              <td style="color:var(--a-muted); font-size:0.78rem"><%= r.phone || '—' %></td>
+              <td style="font-size:0.75rem; color:var(--a-faint)" class="truncate"><%= r.address || '—' %></td>
+              <td style="font-size:0.72rem; color:var(--a-faint)"><%= r.created_at.split(' ')[0] %></td>
+              <td>
+                <div style="display:flex; gap:4px; justify-content:center">
+                  <a href="/admin/readers/<%= r.id %>" class="btn btn-ghost btn-sm btn-icon">👁️</a>
+                  <a href="/admin/readers/<%= r.id %>/edit" class="btn btn-ghost btn-sm btn-icon">✏️</a>
+                  <form action="/admin/readers/<%= r.id %>?_method=DELETE" method="POST" style="display:inline">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-danger btn-sm btn-icon" data-confirm="Xóa độc giả '<%= r.name %>'?">🗑️</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+  <% if (totalPages > 1) { %>
+    <div class="admin-pagination">
+      <a href="/admin/readers?search=<%= search %>&page=<%= Math.max(1,page-1) %>" class="admin-page-btn <%= page<=1?'disabled':'' %>">‹</a>
+      <% for(let i=1;i<=totalPages;i++) { %>
+        <a href="/admin/readers?search=<%= search %>&page=<%= i %>" class="admin-page-btn <%= i===page?'active':'' %>"><%= i %></a>
+      <% } %>
+      <a href="/admin/readers?search=<%= search %>&page=<%= Math.min(totalPages,page+1) %>" class="admin-page-btn <%= page>=totalPages?'disabled':'' %>">›</a>
+    </div>
+  <% } %>
+</div>
