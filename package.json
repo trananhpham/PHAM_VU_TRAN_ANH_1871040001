@@ -1,0 +1,27 @@
+{
+  "name": "mini-library-management",
+  "version": "1.0.0",
+  "description": "Hệ thống Quản lý Thư viện Mini - Mini Library Management System",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js"
+  },
+  "keywords": [
+    "library",
+    "management",
+    "nodejs",
+    "express",
+    "mvc"
+  ],
+  "author": "Library Dev",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^12.10.0",
+    "ejs": "^6.0.1",
+    "ejs-mate": "^4.0.0",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "method-override": "^3.0.0"
+  }
+}

@@ -1,0 +1,67 @@
+<% layout('layout/main') %>
+<!-- Header -->
+<div class="page-header">
+  <div>
+    <h1><%= isEdit ? '✏️ Sửa thông tin Độc giả' : '👤 Đăng ký Độc giả Mới' %></h1>
+    <p><%= isEdit ? `Đang sửa: ${reader.name}` : 'Điền thông tin để đăng ký độc giả' %></p>
+  </div>
+  <a href="/readers" class="btn btn-ghost">← Quay lại</a>
+</div>
+
+<div class="card" style="max-width: 700px">
+  <div class="card-header">
+    <span class="card-title"><%= isEdit ? '📝 Cập nhật thông tin' : '📋 Thông tin độc giả' %></span>
+  </div>
+  <div class="card-body">
+    <% if (errors && errors.length > 0) { %>
+      <div class="error-list">
+        <ul><% errors.forEach(e => { %><li><%= e %></li><% }) %></ul>
+      </div>
+    <% } %>
+
+    <form action="<%= isEdit ? `/readers/${reader.id}?_method=PUT` : '/readers' %>" method="POST">
+      <% if (isEdit) { %>
+        <input type="hidden" name="_method" value="PUT">
+      <% } %>
+
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label class="form-label" for="name">Họ và tên <span class="required">*</span></label>
+          <input type="text" id="name" name="name" class="form-control"
+            value="<%= reader.name || '' %>" placeholder="Nhập họ và tên đầy đủ..." required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email <span class="required">*</span></label>
+          <input type="email" id="email" name="email" class="form-control"
+            value="<%= reader.email || '' %>" placeholder="example@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="phone">Số điện thoại</label>
+          <input type="tel" id="phone" name="phone" class="form-control"
+            value="<%= reader.phone || '' %>" placeholder="0901234567">
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label" for="address">Địa chỉ</label>
+          <textarea id="address" name="address" class="form-control"
+            placeholder="Nhập địa chỉ..."><%= reader.address || '' %></textarea>
+        </div>
+      </div>
+
+      <% if (isEdit && reader.member_id) { %>
+        <div style="background:var(--bg); border-radius:var(--radius-sm); padding:12px; margin-top:16px; font-size:0.85rem; color:var(--text-muted)">
+          📌 Mã thành viên: <strong style="color:var(--primary-light)"><%= reader.member_id %></strong> (không thể thay đổi)
+        </div>
+      <% } %>
+
+      <div style="display:flex; gap:12px; margin-top:24px; padding-top:20px; border-top:1px solid var(--border)">
+        <button type="submit" class="btn btn-primary">
+          <%= isEdit ? '💾 Lưu thay đổi' : '✅ Đăng ký' %>
+        </button>
+        <a href="/readers" class="btn btn-ghost">Hủy</a>
+      </div>
+    </form>
+  </div>
+</div>
