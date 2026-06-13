@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Hệ thống Quản lý Thư viện Mini - Quản lý sách, độc giả và phiếu mượn trả hiệu quả">
+  <title><%= title %> | 📚 Thư Viện Mini</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">📚</div>
+      <div>
+        <h2>Thư Viện Mini</h2>
+        <span>Hệ thống quản lý</span>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Tổng quan</div>
+        <a href="/" class="nav-item <%= currentPath === '' ? 'active' : '' %>">
+          <span class="icon">🏠</span>
+          <span>Bảng điều khiển</span>
+        </a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Quản lý</div>
+        <a href="/books" class="nav-item <%= currentPath === 'books' ? 'active' : '' %>">
+          <span class="icon">📖</span>
+          <span>Quản lý Sách</span>
+        </a>
+        <a href="/readers" class="nav-item <%= currentPath === 'readers' ? 'active' : '' %>">
+          <span class="icon">👥</span>
+          <span>Độc giả</span>
+        </a>
+        <a href="/borrows" class="nav-item <%= currentPath === 'borrows' ? 'active' : '' %>">
+          <span class="icon">📋</span>
+          <span>Mượn / Trả</span>
+        </a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Thao tác nhanh</div>
+        <a href="/books/new" class="nav-item">
+          <span class="icon">➕</span>
+          <span>Thêm sách</span>
+        </a>
+        <a href="/readers/new" class="nav-item">
+          <span class="icon">👤</span>
+          <span>Đăng ký độc giả</span>
+        </a>
+        <a href="/borrows/new" class="nav-item">
+          <span class="icon">📝</span>
+          <span>Tạo phiếu mượn</span>
+        </a>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      &copy; 2025 Thư Viện Mini v1.0
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <h1 class="topbar-title"><%= title %></h1>
+      <div class="topbar-date">
+        📅 <span id="current-date"></span>
+      </div>
+    </header>
+
+    <div class="page">
+      <% if (typeof flash !== 'undefined' && flash) { %>
+        <div class="flash flash-<%= flash.type %>">
+          <%= flash.type === 'success' ? '✅' : flash.type === 'error' ? '❌' : 'ℹ️' %>
+          <%= flash.message %>
+        </div>
+      <% } %>
+
+      <%- body %>
+    </div>
+  </div>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>
