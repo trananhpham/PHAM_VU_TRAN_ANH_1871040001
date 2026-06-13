@@ -1,0 +1,59 @@
+<% layout('layout/admin') %>
+
+<div class="admin-page-header">
+  <div>
+    <h1><%= isEdit ? '✏️ Sửa Sách' : '➕ Thêm Sách Mới' %></h1>
+    <p><%= isEdit ? `Đang sửa: ${book.title}` : 'Điền thông tin sách' %></p>
+  </div>
+  <a href="/admin/books" class="btn btn-ghost">← Quay lại</a>
+</div>
+
+<div class="admin-card" style="max-width:860px">
+  <div class="admin-card-header">
+    <span class="admin-card-title"><%= isEdit ? '📝 Cập nhật' : '📚 Thông tin sách' %></span>
+  </div>
+  <div class="admin-card-body">
+    <% if (errors && errors.length > 0) { %>
+      <div class="admin-errors"><ul><% errors.forEach(e => { %><li><%= e %></li><% }) %></ul></div>
+    <% } %>
+
+    <form action="<%= isEdit ? `/admin/books/${book.id}?_method=PUT` : '/admin/books' %>" method="POST">
+      <% if (isEdit) { %><input type="hidden" name="_method" value="PUT"><% } %>
+      <div class="admin-form-grid">
+        <div class="admin-form-group full">
+          <label class="admin-form-label" for="title">Tên sách <span class="req">*</span></label>
+          <input type="text" id="title" name="title" class="admin-form-control" value="<%= book.title || '' %>" placeholder="Nhập tên sách..." required>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label" for="author">Tác giả <span class="req">*</span></label>
+          <input type="text" id="author" name="author" class="admin-form-control" value="<%= book.author || '' %>" placeholder="Nhập tên tác giả..." required>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label" for="category">Thể loại <span class="req">*</span></label>
+          <input type="text" id="category" name="category" class="admin-form-control" value="<%= book.category || '' %>" placeholder="Vd: Lập trình, Văn học..." list="cat-list" required>
+          <datalist id="cat-list"><% categories.forEach(c => { %><option value="<%= c %>"><% }) %></datalist>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label" for="isbn">ISBN</label>
+          <input type="text" id="isbn" name="isbn" class="admin-form-control" value="<%= book.isbn || '' %>" placeholder="Mã ISBN...">
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label" for="quantity">Số lượng <span class="req">*</span></label>
+          <input type="number" id="quantity" name="quantity" class="admin-form-control" value="<%= book.quantity || 1 %>" min="1" max="999" required>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label" for="published_year">Năm xuất bản</label>
+          <input type="number" id="published_year" name="published_year" class="admin-form-control" value="<%= book.published_year || '' %>" min="1900" max="2026" placeholder="2023">
+        </div>
+        <div class="admin-form-group full">
+          <label class="admin-form-label" for="description">Mô tả / Tóm tắt</label>
+          <textarea id="description" name="description" class="admin-form-control" placeholder="Mô tả ngắn về nội dung sách..."><%= book.description || '' %></textarea>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid var(--a-border)">
+        <button type="submit" class="btn btn-primary"><%= isEdit ? '💾 Lưu thay đổi' : '➕ Thêm sách' %></button>
+        <a href="/admin/books" class="btn btn-ghost">Hủy</a>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,74 @@
+<% layout('layout/admin') %>
+
+<div class="admin-page-header">
+  <div><h1>👤 <%= reader.name %></h1><p>Mã thành viên: <strong><%= reader.member_id %></strong></p></div>
+  <div style="display:flex; gap:8px">
+    <a href="/admin/borrows/new?reader_id=<%= reader.id %>" class="btn btn-success">📝 Tạo phiếu mượn</a>
+    <a href="/admin/readers/<%= reader.id %>/edit" class="btn btn-primary">✏️ Sửa</a>
+    <a href="/admin/readers" class="btn btn-ghost">← Quay lại</a>
+  </div>
+</div>
+
+<div class="admin-grid-2">
+  <div class="admin-card">
+    <div class="admin-card-header"><span class="admin-card-title">📋 Thông tin cá nhân</span></div>
+    <div class="admin-card-body">
+      <div class="admin-detail-grid" style="grid-template-columns:1fr 1fr">
+        <div class="admin-detail-item"><div class="label">Họ và tên</div><div class="value" style="font-weight:700; font-size:1rem"><%= reader.name %></div></div>
+        <div class="admin-detail-item"><div class="label">Mã thành viên</div><div class="value"><span class="badge badge-primary"><%= reader.member_id %></span></div></div>
+        <div class="admin-detail-item" style="grid-column:1/-1"><div class="label">Email</div><div class="value"><%= reader.email %></div></div>
+        <div class="admin-detail-item"><div class="label">Số điện thoại</div><div class="value"><%= reader.phone || '—' %></div></div>
+        <div class="admin-detail-item"><div class="label">Ngày đăng ký</div><div class="value" style="font-size:0.8rem"><%= reader.created_at.split(' ')[0] %></div></div>
+        <div class="admin-detail-item" style="grid-column:1/-1"><div class="label">Địa chỉ</div><div class="value" style="font-size:0.82rem; color:var(--a-muted)"><%= reader.address || '—' %></div></div>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:16px; padding-top:14px; border-top:1px solid var(--a-border)">
+        <form action="/admin/readers/<%= reader.id %>?_method=DELETE" method="POST">
+          <input type="hidden" name="_method" value="DELETE">
+          <button type="submit" class="btn btn-danger" data-confirm="Xóa độc giả '<%= reader.name %>'?">🗑️ Xóa</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:10px">
+    <div class="admin-stat" style="--stat-color:#6366f1; --stat-bg:rgba(99,102,241,0.12)">
+      <div class="admin-stat-icon">📖</div>
+      <div><div class="admin-stat-value"><%= stats.total %></div><div class="admin-stat-label">Tổng lượt mượn</div></div>
+    </div>
+    <div class="admin-stat" style="--stat-color:#10b981; --stat-bg:rgba(16,185,129,0.12)">
+      <div class="admin-stat-icon">🔄</div>
+      <div><div class="admin-stat-value"><%= stats.active %></div><div class="admin-stat-label">Đang mượn</div></div>
+    </div>
+    <div class="admin-stat" style="--stat-color:#ef4444; --stat-bg:rgba(239,68,68,0.12)">
+      <div class="admin-stat-icon">💰</div>
+      <div><div class="admin-stat-value"><%= stats.totalFine.toLocaleString('vi-VN') %>₫</div><div class="admin-stat-label">Tổng phạt</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- History -->
+<div class="admin-card" style="margin-top:16px">
+  <div class="admin-card-header"><span class="admin-card-title">📚 Lịch sử mượn sách</span><span class="badge badge-muted"><%= history.length %> phiếu</span></div>
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>#</th><th>Tên sách</th><th>Ngày mượn</th><th>Hạn trả</th><th>Ngày trả</th><th>Phạt</th><th>Trạng thái</th></tr></thead>
+      <tbody>
+        <% if (history.length === 0) { %>
+          <tr><td colspan="7"><div class="admin-empty"><div class="icon">📭</div><h3>Chưa có lịch sử mượn</h3></div></td></tr>
+        <% } else { %>
+          <% history.forEach(h => { %>
+            <tr>
+              <td><a href="/admin/borrows/<%= h.id %>" style="color:var(--a-primary)">#<%= h.id %></a></td>
+              <td><div style="font-weight:600; font-size:0.82rem"><%= h.book_title %></div><div style="font-size:0.68rem; color:var(--a-muted)"><%= h.book_author %></div></td>
+              <td style="font-size:0.75rem"><%= h.borrow_date %></td>
+              <td style="font-size:0.75rem"><%= h.due_date %></td>
+              <td style="font-size:0.75rem"><%= h.return_date || '—' %></td>
+              <td><% if (h.fine_amount > 0) { %><span style="color:var(--a-danger); font-weight:600"><%= h.fine_amount.toLocaleString('vi-VN') %>₫</span><% } else { %><span style="color:var(--a-faint)">0₫</span><% } %></td>
+              <td><% if (h.status === 'returned') { %><span class="badge badge-success">Đã trả</span><% } else { %><span class="badge badge-info">Đang mượn</span><% } %></td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>

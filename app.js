@@ -7,10 +7,12 @@ const ejsMate = require('ejs-mate');
 // Khởi tạo DB ngay khi start
 require('./src/database/db').getDb();
 
+const HomeController = require('./src/controllers/homeController');
+const adminRoutes = require('./src/routes/adminRoutes');
+// Legacy routes (kept for backward compat)
 const bookRoutes = require('./src/routes/bookRoutes');
 const readerRoutes = require('./src/routes/readerRoutes');
 const borrowRoutes = require('./src/routes/borrowRoutes');
-const BorrowController = require('./src/controllers/borrowController');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,7 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Method Override (cho PUT và DELETE qua form HTML)
+// Method Override (PUT / DELETE qua form HTML)
 app.use(methodOverride('_method'));
 app.use(methodOverride((req) => {
   if (req.body && typeof req.body === 'object' && '_method' in req.body) {
@@ -35,55 +37,64 @@ app.use(methodOverride((req) => {
   }
 }));
 
-// Session (cho flash messages)
+// Session
 app.use(session({
   secret: 'library-secret-key-2025',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 60 * 60 * 1000 }, // 1 giờ
+  cookie: { maxAge: 4 * 60 * 60 * 1000 }, // 4 giờ
 }));
 
-// Local vars cho tất cả views
+// Locals cho EJS layout (currentPath cho sidebar cũ)
 app.use((req, res, next) => {
-  // Lấy phần đầu của path để highlight active nav
   res.locals.currentPath = req.path.split('/').filter(Boolean)[0] || '';
   next();
 });
 
 // ===== ROUTES =====
-app.get('/', BorrowController.dashboard);
+
+// Trang chính (Landing Page)
+app.get('/', HomeController.index);
+
+// Admin Panel
+app.use('/admin', adminRoutes);
+
+// Legacy routes (giữ lại để tương thích)
 app.use('/books', bookRoutes);
 app.use('/readers', readerRoutes);
 app.use('/borrows', borrowRoutes);
 
-// ===== 404 HANDLER =====
+// ===== 404 =====
 app.use((req, res) => {
-  res.status(404).render('error', {
-    title: 'Không tìm thấy trang',
-    message: `Trang "${req.path}" không tồn tại.`,
-  });
+  // Nếu là admin route → render với admin layout không thể, dùng JSON
+  if (req.path.startsWith('/admin')) {
+    return res.status(404).send('<div style="font-family:monospace;padding:40px;background:#09090b;color:#f87171;min-height:100vh">404 — Trang không tồn tại. <a href="/admin/dashboard" style="color:#818cf8">Về Dashboard</a></div>');
+  }
+  res.status(404).render('error', { title: 'Không tìm thấy', message: `Trang "${req.path}" không tồn tại.` });
 });
 
 // ===== ERROR HANDLER =====
 app.use((err, req, res, next) => {
   console.error('Server Error:', err);
-  res.status(500).render('error', {
-    title: 'Lỗi server',
-    message: err.message || 'Lỗi nội bộ máy chủ.',
-  });
+  if (req.path.startsWith('/admin')) {
+    return res.status(500).send(`<div style="font-family:monospace;padding:40px;background:#09090b;color:#f87171;min-height:100vh">500 — ${err.message}. <a href="/admin/dashboard" style="color:#818cf8">Về Dashboard</a></div>`);
+  }
+  res.status(500).render('error', { title: 'Lỗi server', message: err.message || 'Lỗi nội bộ.' });
 });
 
-// ===== START SERVER =====
+// ===== START =====
 app.listen(PORT, () => {
   console.log('');
-  console.log('  📚 ====================================');
-  console.log('     HỆ THỐNG QUẢN LÝ THƯ VIỆN MINI');
-  console.log('  📚 ====================================');
-  console.log(`  🚀 Server chạy tại: http://localhost:${PORT}`);
-  console.log(`  📖 Quản lý sách:    http://localhost:${PORT}/books`);
-  console.log(`  👥 Độc giả:         http://localhost:${PORT}/readers`);
-  console.log(`  📋 Mượn/Trả:        http://localhost:${PORT}/borrows`);
-  console.log('  ======================================');
+  console.log('  📚 ========================================');
+  console.log('       HỆ THỐNG QUẢN LÝ THƯ VIỆN MINI');
+  console.log('  📚 ========================================');
+  console.log(`  🌐 Trang chính:  http://localhost:${PORT}`);
+  console.log(`  🔑 Admin Panel:  http://localhost:${PORT}/admin`);
+  console.log(`  📖 Quản lý sách: http://localhost:${PORT}/admin/books`);
+  console.log(`  👥 Độc giả:      http://localhost:${PORT}/admin/readers`);
+  console.log(`  📋 Mượn/Trả:     http://localhost:${PORT}/admin/borrows`);
+  console.log('  ========================================');
+  console.log(`  🔑 Login: admin / admin123`);
   console.log('');
 });
 

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Admin — Thư Viện Mini</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-logo">
+      <div class="admin-sidebar-logo-icon">📚</div>
+      <div class="admin-sidebar-logo-text">
+        <h2>Thư Viện</h2>
+        <span>Admin Panel</span>
+      </div>
+    </div>
+
+    <nav class="admin-nav">
+      <div class="admin-nav-section">
+        <div class="admin-nav-section-title">Tổng quan</div>
+        <a href="/admin/dashboard" class="admin-nav-item <%= adminPath === 'dashboard' ? 'active' : '' %>">
+          <span class="icon">🏠</span><span>Dashboard</span>
+        </a>
+      </div>
+      <div class="admin-nav-section">
+        <div class="admin-nav-section-title">Quản lý</div>
+        <a href="/admin/books" class="admin-nav-item <%= adminPath === 'books' ? 'active' : '' %>">
+          <span class="icon">📚</span><span>Quản lý Sách</span>
+        </a>
+        <a href="/admin/readers" class="admin-nav-item <%= adminPath === 'readers' ? 'active' : '' %>">
+          <span class="icon">👥</span><span>Độc giả</span>
+        </a>
+        <a href="/admin/borrows" class="admin-nav-item <%= adminPath === 'borrows' ? 'active' : '' %>">
+          <span class="icon">📋</span><span>Mượn / Trả</span>
+        </a>
+      </div>
+      <div class="admin-nav-section">
+        <div class="admin-nav-section-title">Thao tác nhanh</div>
+        <a href="/admin/books/new" class="admin-nav-item">
+          <span class="icon">➕</span><span>Thêm sách</span>
+        </a>
+        <a href="/admin/readers/new" class="admin-nav-item">
+          <span class="icon">👤</span><span>Đăng ký độc giả</span>
+        </a>
+        <a href="/admin/borrows/new" class="admin-nav-item">
+          <span class="icon">📝</span><span>Tạo phiếu mượn</span>
+        </a>
+      </div>
+      <div class="admin-nav-section">
+        <div class="admin-nav-section-title">Hệ thống</div>
+        <a href="/" class="admin-nav-item" target="_blank">
+          <span class="icon">🌐</span><span>Trang chính ↗</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="admin-sidebar-footer">
+      <div class="admin-sidebar-user">
+        <strong>Administrator</strong>
+        admin@library.com
+      </div>
+      <a href="/admin/logout" class="admin-logout">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Đăng xuất
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <h1 class="admin-topbar-title"><%= title %></h1>
+      <span class="admin-topbar-date" id="admin-date"></span>
+    </header>
+
+    <div class="admin-page">
+      <% if (typeof flash !== 'undefined' && flash) { %>
+        <div class="admin-flash admin-flash-<%= flash.type %>">
+          <%= flash.type === 'success' ? '✅' : '❌' %> <%= flash.message %>
+        </div>
+      <% } %>
+      <%- body %>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Date display
+  const dateEl = document.getElementById('admin-date');
+  if (dateEl) {
+    dateEl.textContent = new Date().toLocaleDateString('vi-VN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  }
+
+  // Flash auto-dismiss
+  const flash = document.querySelector('.admin-flash');
+  if (flash) {
+    setTimeout(() => {
+      flash.style.transition = 'opacity 0.5s, transform 0.5s';
+      flash.style.opacity = '0';
+      flash.style.transform = 'translateY(-8px)';
+      setTimeout(() => flash.remove(), 500);
+    }, 4500);
+  }
+
+  // Confirm dialogs
+  document.querySelectorAll('[data-confirm]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      if (!confirm(btn.dataset.confirm)) e.preventDefault();
+    });
+  });
+
+  // Status/category auto-submit
+  ['status-filter','category-filter'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', () => el.closest('form').submit());
+  });
+
+  // Due date auto-calc
+  const borrowDate = document.getElementById('borrow_date');
+  const dueDate = document.getElementById('due_date');
+  if (borrowDate && dueDate) {
+    borrowDate.addEventListener('change', () => {
+      const d = new Date(borrowDate.value);
+      d.setDate(d.getDate() + 14);
+      dueDate.value = d.toISOString().split('T')[0];
+    });
+  }
+</script>
+</body>
+</html>
