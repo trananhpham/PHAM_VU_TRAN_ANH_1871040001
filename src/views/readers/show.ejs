@@ -1,0 +1,131 @@
+<% layout('layout/main') %>
+<!-- Header -->
+<div class="page-header">
+  <div>
+    <h1>👤 <%= reader.name %></h1>
+    <p>Mã thành viên: <strong><%= reader.member_id %></strong></p>
+  </div>
+  <div style="display:flex; gap:10px">
+    <a href="/borrows/new?reader_id=<%= reader.id %>" class="btn btn-success">📝 Tạo phiếu mượn</a>
+    <a href="/readers/<%= reader.id %>/edit" class="btn btn-primary">✏️ Sửa</a>
+    <a href="/readers" class="btn btn-ghost">← Quay lại</a>
+  </div>
+</div>
+
+<!-- Info Cards -->
+<div style="display:grid; grid-template-columns:2fr 1fr; gap:20px; max-width:1000px">
+  <!-- Thông tin cá nhân -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📋 Thông tin cá nhân</span>
+    </div>
+    <div class="card-body">
+      <div class="detail-grid" style="grid-template-columns:repeat(2,1fr)">
+        <div class="detail-item">
+          <div class="detail-label">Họ và tên</div>
+          <div class="detail-value" style="font-size:1rem; font-weight:700"><%= reader.name %></div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Mã thành viên</div>
+          <div class="detail-value"><span class="badge badge-primary" style="font-size:0.85rem"><%= reader.member_id %></span></div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Email</div>
+          <div class="detail-value"><%= reader.email %></div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Số điện thoại</div>
+          <div class="detail-value"><%= reader.phone || '—' %></div>
+        </div>
+        <div class="detail-item" style="grid-column:1/-1">
+          <div class="detail-label">Địa chỉ</div>
+          <div class="detail-value"><%= reader.address || '—' %></div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Ngày đăng ký</div>
+          <div class="detail-value" style="font-size:0.85rem"><%= reader.created_at.split(' ')[0] %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thống kê -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div class="stat-card" style="--accent-color:#6366f1; --icon-bg:rgba(99,102,241,0.15)">
+      <div class="stat-icon">📖</div>
+      <div class="stat-info">
+        <div class="stat-value"><%= stats.total %></div>
+        <div class="stat-label">Tổng lượt mượn</div>
+      </div>
+    </div>
+    <div class="stat-card" style="--accent-color:#10b981; --icon-bg:rgba(16,185,129,0.15)">
+      <div class="stat-icon">🔄</div>
+      <div class="stat-info">
+        <div class="stat-value"><%= stats.active %></div>
+        <div class="stat-label">Đang mượn</div>
+      </div>
+    </div>
+    <div class="stat-card" style="--accent-color:#ef4444; --icon-bg:rgba(239,68,68,0.15)">
+      <div class="stat-icon">💰</div>
+      <div class="stat-info">
+        <div class="stat-value"><%= stats.totalFine.toLocaleString('vi-VN') %>₫</div>
+        <div class="stat-label">Tổng phạt</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Lịch sử mượn -->
+<div class="card" style="margin-top:20px; max-width:1000px">
+  <div class="card-header">
+    <span class="card-title">📚 Lịch sử mượn sách</span>
+    <span class="badge badge-muted"><%= history.length %> phiếu</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Tên sách</th>
+          <th>Ngày mượn</th>
+          <th>Ngày hạn</th>
+          <th>Ngày trả</th>
+          <th>Tiền phạt</th>
+          <th>Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (history.length === 0) { %>
+          <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📭</div><h3>Chưa có lịch sử mượn</h3></div></td></tr>
+        <% } else { %>
+          <% history.forEach(h => { %>
+            <tr>
+              <td><a href="/borrows/<%= h.id %>" style="color:var(--primary-light)">#<%= h.id %></a></td>
+              <td>
+                <div style="font-weight:500"><%= h.book_title %></div>
+                <div style="font-size:0.75rem; color:var(--text-muted)"><%= h.book_author %></div>
+              </td>
+              <td style="font-size:0.82rem"><%= h.borrow_date %></td>
+              <td style="font-size:0.82rem"><%= h.due_date %></td>
+              <td style="font-size:0.82rem"><%= h.return_date || '—' %></td>
+              <td>
+                <% if (h.fine_amount > 0) { %>
+                  <span style="color:#f87171; font-weight:600"><%= h.fine_amount.toLocaleString('vi-VN') %>₫</span>
+                <% } else { %>
+                  <span style="color:var(--text-faint)">0₫</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (h.status === 'returned') { %>
+                  <span class="badge badge-success">✅ Đã trả</span>
+                <% } else { %>
+                  <span class="badge badge-info">📖 Đang mượn</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
