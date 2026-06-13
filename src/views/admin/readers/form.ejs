@@ -1,0 +1,45 @@
+<% layout('layout/admin') %>
+
+<div class="admin-page-header">
+  <div><h1><%= isEdit ? '✏️ Sửa Độc giả' : '👤 Đăng ký Độc giả Mới' %></h1><p><%= isEdit ? reader.name : 'Điền thông tin để đăng ký' %></p></div>
+  <a href="/admin/readers" class="btn btn-ghost">← Quay lại</a>
+</div>
+
+<div class="admin-card" style="max-width:640px">
+  <div class="admin-card-header"><span class="admin-card-title"><%= isEdit ? '📝 Cập nhật' : '📋 Thông tin độc giả' %></span></div>
+  <div class="admin-card-body">
+    <% if (errors && errors.length > 0) { %>
+      <div class="admin-errors"><ul><% errors.forEach(e => { %><li><%= e %></li><% }) %></ul></div>
+    <% } %>
+    <form action="<%= isEdit ? `/admin/readers/${reader.id}?_method=PUT` : '/admin/readers' %>" method="POST">
+      <% if (isEdit) { %><input type="hidden" name="_method" value="PUT"><% } %>
+      <div class="admin-form-grid">
+        <div class="admin-form-group full">
+          <label class="admin-form-label" for="name">Họ và tên <span class="req">*</span></label>
+          <input type="text" id="name" name="name" class="admin-form-control" value="<%= reader.name || '' %>" placeholder="Họ và tên đầy đủ..." required>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label" for="email">Email <span class="req">*</span></label>
+          <input type="email" id="email" name="email" class="admin-form-control" value="<%= reader.email || '' %>" placeholder="example@email.com" required>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label" for="phone">Số điện thoại</label>
+          <input type="tel" id="phone" name="phone" class="admin-form-control" value="<%= reader.phone || '' %>" placeholder="0901234567">
+        </div>
+        <div class="admin-form-group full">
+          <label class="admin-form-label" for="address">Địa chỉ</label>
+          <textarea id="address" name="address" class="admin-form-control" placeholder="Địa chỉ..."><%= reader.address || '' %></textarea>
+        </div>
+      </div>
+      <% if (isEdit && reader.member_id) { %>
+        <div style="background:var(--a-bg); border-radius:var(--a-radius-sm); padding:10px 12px; margin-top:14px; font-size:0.78rem; color:var(--a-muted)">
+          📌 Mã thành viên: <strong style="color:var(--a-primary)"><%= reader.member_id %></strong>
+        </div>
+      <% } %>
+      <div style="display:flex; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid var(--a-border)">
+        <button type="submit" class="btn btn-primary"><%= isEdit ? '💾 Lưu' : '✅ Đăng ký' %></button>
+        <a href="/admin/readers" class="btn btn-ghost">Hủy</a>
+      </div>
+    </form>
+  </div>
+</div>

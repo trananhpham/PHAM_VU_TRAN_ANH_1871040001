@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng nhập Admin — Thư Viện Mini</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+<div class="admin-login-wrap">
+  <div class="admin-login-card">
+    <div class="admin-login-logo">
+      <div class="logo-icon">📚</div>
+      <h1>Admin Panel</h1>
+      <p>Hệ thống Quản lý Thư Viện Mini</p>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="admin-flash admin-flash-error" style="margin-bottom:16px">
+        ❌ <%= error %>
+      </div>
+    <% } %>
+
+    <form action="/admin/login" method="POST">
+      <div style="display:flex; flex-direction:column; gap:14px">
+        <div class="admin-form-group">
+          <label class="admin-form-label" for="username">Tên đăng nhập</label>
+          <input type="text" id="username" name="username" class="admin-form-control"
+            placeholder="admin" value="<%= typeof username !== 'undefined' ? username : '' %>" required autocomplete="username">
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label" for="password">Mật khẩu</label>
+          <input type="password" id="password" name="password" class="admin-form-control"
+            placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="admin-login-btn" style="margin-top:8px">
+          🔑 Đăng nhập
+        </button>
+      </div>
+    </form>
+
+    <div style="text-align:center; margin-top:20px; padding-top:20px; border-top:1px solid var(--a-border)">
+      <p style="font-size:0.72rem; color:var(--a-faint)">Tài khoản mặc định: <code style="color:var(--a-primary); background:var(--a-surface2); padding:2px 6px; border-radius:4px">admin</code> / <code style="color:var(--a-primary); background:var(--a-surface2); padding:2px 6px; border-radius:4px">admin123</code></p>
+      <a href="/" style="font-size:0.72rem; color:var(--a-muted); margin-top:8px; display:inline-block; transition:color 0.2s"
+         onmouseover="this.style.color='#e4e4e7'" onmouseout="this.style.color='#a1a1aa'">← Về trang chính</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

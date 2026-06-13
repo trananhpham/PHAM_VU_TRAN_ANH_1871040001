@@ -1,0 +1,77 @@
+<% layout('layout/admin') %>
+
+<div class="admin-page-header">
+  <div><h1>📋 Quản lý Mượn / Trả</h1><p>Tổng cộng <strong><%= total %></strong> phiếu mượn</p></div>
+  <a href="/admin/borrows/new" class="btn btn-primary">📝 Tạo phiếu mượn</a>
+</div>
+
+<div class="admin-card" style="margin-bottom:16px">
+  <div class="admin-card-body">
+    <form action="/admin/borrows" method="GET">
+      <div class="admin-search">
+        <div class="admin-search-wrap">
+          <span class="admin-search-icon">🔍</span>
+          <input type="text" name="search" value="<%= search %>" placeholder="Tìm tên độc giả, mã TV, tên sách..." class="admin-form-control">
+        </div>
+        <select name="status" class="admin-form-control" id="status-filter" style="max-width:170px">
+          <option value="">-- Tất cả --</option>
+          <option value="borrowing" <%= status==='borrowing'?'selected':'' %>>📖 Đang mượn</option>
+          <option value="returned" <%= status==='returned'?'selected':'' %>>✅ Đã trả</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Tìm</button>
+        <% if (search || status) { %><a href="/admin/borrows" class="btn btn-ghost">✕</a><% } %>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="admin-card">
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>#</th><th>Độc giả</th><th>Sách mượn</th><th>Ngày mượn</th><th>Hạn trả</th><th>Tiền phạt</th><th>Trạng thái</th><th style="text-align:center">Thao tác</th></tr></thead>
+      <tbody>
+        <% if (borrows.length === 0) { %>
+          <tr><td colspan="8"><div class="admin-empty"><div class="icon">📭</div><h3>Không có phiếu mượn</h3><a href="/admin/borrows/new" class="btn btn-primary">📝 Tạo phiếu</a></div></td></tr>
+        <% } else { %>
+          <% borrows.forEach(b => { %>
+            <tr>
+              <td><a href="/admin/borrows/<%= b.id %>" style="color:var(--a-primary); font-weight:700">#<%= b.id %></a></td>
+              <td><div style="font-weight:600"><%= b.reader_name %></div><div style="font-size:0.68rem; color:var(--a-muted)"><%= b.member_id %></div></td>
+              <td><div style="font-size:0.82rem; font-weight:500; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap"><%= b.book_title %></div></td>
+              <td style="font-size:0.75rem"><%= b.borrow_date %></td>
+              <td style="font-size:0.75rem"><%= b.due_date %><% if (b.is_overdue) { %><div style="font-size:0.65rem; color:var(--a-danger)">⏰ Quá hạn</div><% } %></td>
+              <td>
+                <% const fine = b.status==='borrowing' ? b.current_fine : b.fine_amount; %>
+                <% if (fine > 0) { %><span style="color:var(--a-danger); font-weight:600"><%= fine.toLocaleString('vi-VN') %>₫</span><% } else { %><span style="color:var(--a-faint)">—</span><% } %>
+              </td>
+              <td>
+                <% if (b.status==='returned') { %><span class="badge badge-success">✅ Đã trả</span>
+                <% } else if (b.is_overdue) { %><span class="badge badge-danger">🔴 Quá hạn</span>
+                <% } else { %><span class="badge badge-info">📖 Đang mượn</span><% } %>
+              </td>
+              <td>
+                <div style="display:flex; gap:4px; justify-content:center">
+                  <a href="/admin/borrows/<%= b.id %>" class="btn btn-ghost btn-sm btn-icon">👁️</a>
+                  <% if (b.status==='borrowing') { %>
+                    <form action="/admin/borrows/<%= b.id %>/return" method="POST" style="display:inline">
+                      <button type="submit" class="btn btn-success btn-sm" data-confirm="Xác nhận trả sách này?">✅ Trả</button>
+                    </form>
+                  <% } %>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+  <% if (totalPages > 1) { %>
+    <div class="admin-pagination">
+      <a href="/admin/borrows?search=<%= search %>&status=<%= status %>&page=<%= Math.max(1,page-1) %>" class="admin-page-btn <%= page<=1?'disabled':'' %>">‹</a>
+      <% for(let i=1;i<=totalPages;i++) { %>
+        <a href="/admin/borrows?search=<%= search %>&status=<%= status %>&page=<%= i %>" class="admin-page-btn <%= i===page?'active':'' %>"><%= i %></a>
+      <% } %>
+      <a href="/admin/borrows?search=<%= search %>&status=<%= status %>&page=<%= Math.min(totalPages,page+1) %>" class="admin-page-btn <%= page>=totalPages?'disabled':'' %>">›</a>
+    </div>
+  <% } %>
+</div>

@@ -1,0 +1,99 @@
+<% layout('layout/admin') %>
+
+<!-- Stats -->
+<div class="admin-stats">
+  <div class="admin-stat" style="--stat-color:#6366f1; --stat-bg:rgba(99,102,241,0.12)">
+    <div class="admin-stat-icon">📚</div>
+    <div><div class="admin-stat-value"><%= stats.totalBooks %></div><div class="admin-stat-label">Tổng đầu sách</div></div>
+  </div>
+  <div class="admin-stat" style="--stat-color:#0ea5e9; --stat-bg:rgba(14,165,233,0.12)">
+    <div class="admin-stat-icon">👥</div>
+    <div><div class="admin-stat-value"><%= stats.totalReaders %></div><div class="admin-stat-label">Độc giả</div></div>
+  </div>
+  <div class="admin-stat" style="--stat-color:#10b981; --stat-bg:rgba(16,185,129,0.12)">
+    <div class="admin-stat-icon">📖</div>
+    <div><div class="admin-stat-value"><%= stats.activeBorrows %></div><div class="admin-stat-label">Đang mượn</div></div>
+  </div>
+  <div class="admin-stat" style="--stat-color:#ef4444; --stat-bg:rgba(239,68,68,0.12)">
+    <div class="admin-stat-icon">⚠️</div>
+    <div><div class="admin-stat-value"><%= stats.overdue %></div><div class="admin-stat-label">Quá hạn</div></div>
+  </div>
+  <div class="admin-stat" style="--stat-color:#f59e0b; --stat-bg:rgba(245,158,11,0.12)">
+    <div class="admin-stat-icon">💰</div>
+    <div><div class="admin-stat-value"><%= stats.totalFine.toLocaleString('vi-VN') %>₫</div><div class="admin-stat-label">Tổng phạt</div></div>
+  </div>
+  <div class="admin-stat" style="--stat-color:#06b6d4; --stat-bg:rgba(6,182,212,0.12)">
+    <div class="admin-stat-icon">✅</div>
+    <div><div class="admin-stat-value"><%= stats.returnedToday %></div><div class="admin-stat-label">Trả hôm nay</div></div>
+  </div>
+</div>
+
+<!-- Grid -->
+<div class="admin-grid-2">
+  <!-- Recent borrows -->
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <span class="admin-card-title">📋 Phiếu mượn gần đây</span>
+      <a href="/admin/borrows" class="btn btn-ghost btn-sm">Xem tất cả →</a>
+    </div>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>#</th><th>Độc giả</th><th>Sách</th><th>Hạn trả</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <% if (!recentBorrows || recentBorrows.length === 0) { %>
+            <tr><td colspan="5" style="text-align:center; color:var(--a-faint); padding:24px">Chưa có phiếu mượn</td></tr>
+          <% } else { %>
+            <% recentBorrows.forEach(b => { %>
+              <tr>
+                <td><a href="/admin/borrows/<%= b.id %>" style="color:var(--a-primary); font-weight:700">#<%= b.id %></a></td>
+                <td><div style="font-weight:600"><%= b.reader_name %></div><div style="font-size:0.68rem; color:var(--a-muted)"><%= b.member_id %></div></td>
+                <td class="truncate" style="max-width:140px"><%= b.book_title %></td>
+                <td style="font-size:0.75rem"><%= b.due_date %></td>
+                <td>
+                  <% if (b.status === 'returned') { %>
+                    <span class="badge badge-success">Đã trả</span>
+                  <% } else if (b.is_overdue) { %>
+                    <span class="badge badge-danger">Quá hạn</span>
+                  <% } else { %>
+                    <span class="badge badge-info">Đang mượn</span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Top Books -->
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <span class="admin-card-title">🔥 Sách mượn nhiều nhất</span>
+    </div>
+    <div class="admin-card-body admin-top-books">
+      <% if (!topBooks || topBooks.length === 0) { %>
+        <p style="text-align:center; color:var(--a-faint); padding:24px">Chưa có dữ liệu</p>
+      <% } else { %>
+        <% topBooks.forEach((book, i) => { %>
+          <div class="book-bar">
+            <div class="bar-rank"><%= i+1 %></div>
+            <div class="bar-info">
+              <div class="bar-name"><%= book.title %></div>
+              <div class="bar-author"><%= book.author %></div>
+            </div>
+            <span class="bar-count"><%= book.borrow_count %> lần</span>
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap">
+  <a href="/admin/books/new" class="btn btn-primary">➕ Thêm sách</a>
+  <a href="/admin/readers/new" class="btn btn-success">👤 Đăng ký độc giả</a>
+  <a href="/admin/borrows/new" class="btn btn-warning">📝 Tạo phiếu mượn</a>
+  <a href="/admin/borrows?status=borrowing" class="btn btn-ghost">📋 Đang mượn</a>
+</div>

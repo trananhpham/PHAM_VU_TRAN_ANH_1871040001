@@ -1,0 +1,71 @@
+<% layout('layout/admin') %>
+
+<div class="admin-page-header">
+  <div><h1>📋 Phiếu mượn #<%= borrow.id %></h1><p>Chi tiết thông tin phiếu mượn</p></div>
+  <div style="display:flex; gap:8px">
+    <% if (borrow.status === 'borrowing') { %>
+      <form action="/admin/borrows/<%= borrow.id %>/return" method="POST">
+        <button type="submit" class="btn btn-success" data-confirm="Xác nhận trả sách này?">✅ Xác nhận Trả sách</button>
+      </form>
+    <% } %>
+    <a href="/admin/borrows" class="btn btn-ghost">← Danh sách</a>
+  </div>
+</div>
+
+<div class="admin-grid-2">
+  <div class="admin-card">
+    <div class="admin-card-header"><span class="admin-card-title">📚 Thông tin sách</span></div>
+    <div class="admin-card-body">
+      <div class="admin-detail-grid" style="grid-template-columns:1fr">
+        <div class="admin-detail-item"><div class="label">Tên sách</div><div class="value" style="font-size:1rem; font-weight:700"><%= borrow.book_title %></div></div>
+        <div class="admin-detail-item"><div class="label">Tác giả</div><div class="value"><%= borrow.book_author %></div></div>
+        <div class="admin-detail-item"><div class="label">Thể loại</div><div class="value"><span class="badge badge-info"><%= borrow.category %></span></div></div>
+        <% if (borrow.isbn) { %><div class="admin-detail-item"><div class="label">ISBN</div><div class="value"><%= borrow.isbn %></div></div><% } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-card">
+    <div class="admin-card-header"><span class="admin-card-title">👤 Thông tin độc giả</span></div>
+    <div class="admin-card-body">
+      <div class="admin-detail-grid" style="grid-template-columns:1fr">
+        <div class="admin-detail-item"><div class="label">Họ và tên</div><div class="value" style="font-weight:700"><a href="/admin/readers/<%= borrow.reader_id %>" style="color:var(--a-primary)"><%= borrow.reader_name %></a></div></div>
+        <div class="admin-detail-item"><div class="label">Mã thành viên</div><div class="value"><span class="badge badge-primary"><%= borrow.member_id %></span></div></div>
+        <div class="admin-detail-item"><div class="label">Email</div><div class="value" style="font-size:0.82rem"><%= borrow.reader_email %></div></div>
+        <div class="admin-detail-item"><div class="label">SĐT</div><div class="value"><%= borrow.reader_phone || '—' %></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="admin-card" style="margin-top:16px">
+  <div class="admin-card-header">
+    <span class="admin-card-title">📅 Thông tin mượn/trả</span>
+    <% if (borrow.status==='returned') { %><span class="badge badge-success">✅ Đã trả</span>
+    <% } else if (borrow.is_overdue) { %><span class="badge badge-danger">🔴 Quá hạn</span>
+    <% } else { %><span class="badge badge-info">📖 Đang mượn</span><% } %>
+  </div>
+  <div class="admin-card-body">
+    <div class="admin-detail-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="admin-detail-item"><div class="label">Ngày mượn</div><div class="value"><%= borrow.borrow_date %></div></div>
+      <div class="admin-detail-item">
+        <div class="label">Ngày hạn trả</div>
+        <div class="value" style="<%= borrow.is_overdue ? 'color:var(--a-danger)' : '' %>"><%= borrow.due_date %><% if (borrow.is_overdue) { %><div style="font-size:0.68rem">⏰ Đã quá hạn!</div><% } %></div>
+      </div>
+      <div class="admin-detail-item"><div class="label">Ngày trả thực tế</div><div class="value"><%= borrow.return_date || '—' %></div></div>
+      <div class="admin-detail-item"><div class="label">Ghi chú</div><div class="value" style="font-size:0.8rem"><%= borrow.note || '—' %></div></div>
+    </div>
+
+    <% const fine = borrow.status==='borrowing' ? borrow.current_fine : borrow.fine_amount; %>
+    <% if (fine > 0) { %>
+      <div class="admin-fine-box" style="margin-top:16px">
+        <div class="admin-fine-amount"><%= fine.toLocaleString('vi-VN') %> VNĐ</div>
+        <div class="admin-fine-label">💸 <%= borrow.status==='borrowing' ? 'Tiền phạt hiện tại (tính đến hôm nay)' : 'Tiền phạt khi trả' %></div>
+      </div>
+    <% } else if (borrow.status === 'returned') { %>
+      <div style="background:rgba(52,211,153,0.07); border:1px solid rgba(52,211,153,0.15); border-radius:var(--a-radius-sm); padding:12px; margin-top:16px; text-align:center; color:var(--a-success); font-weight:600; font-size:0.9rem">
+        ✅ Trả đúng hạn — Không phạt
+      </div>
+    <% } %>
+  </div>
+</div>
